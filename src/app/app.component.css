@@ -1,0 +1,28 @@
+.controls-container{
+    display: flex;
+    justify-content: space-evenly;
+    margin-top: 2rem;
+}
+.controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.text-container{
+    display: flex;
+    margin-top: 2rem;
+}
+.ml{
+    margin-left: 2rem
+}
+.button-container{
+    display: flex;
+    width: 10rem;
+    justify-content: space-between;
+}
+button{
+    background-color: #1099BB;
+    border: 1 solid black;
+    border-radius: 6px;
+    padding: 10px 30px 10px 30px;
+}
