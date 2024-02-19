@@ -86,58 +86,12 @@ class Shape {
       this.game.stage.addChild(shape);
     }
 
-  draw(color: number, shapeIndex: number, x: number, y: number) {
+  draw(color: number, x: number, y: number) {
     const shapeSize = 100;
 
     this.graphics.beginFill(color);
 
-    switch (shapeIndex) {
-      case 0:
-        // Draw a circle
-        const circleRadius = shapeSize / 2;
-        this.graphics.drawCircle(0, 0, circleRadius);
-        break;
-      case 1:
-        // Draw a square
-        this.graphics.drawRect(-shapeSize / 2, -shapeSize / 2, shapeSize, shapeSize);
-        break;
-      case 2:
-        // Draw a triangle
-        this.graphics.drawPolygon([-shapeSize / 2, shapeSize / 2, shapeSize / 2, shapeSize / 2, 0, -shapeSize / 2]);
-        break;
-        case 3:
-          // Draw a 5-sided shape (pentagon)
-          this.graphics.drawPolygon([
-              0, -shapeSize/2,
-              shapeSize/2 * 0.951, -shapeSize/2 * 0.309,
-              shapeSize/2 * 0.588, shapeSize/2 * 0.809,
-              -shapeSize/2 * 0.588, shapeSize/2 * 0.809,
-              -shapeSize/2 * 0.951, -shapeSize/2 * 0.309
-          ]);
-          break;
-      case 4:
-          // Draw a 6-sided shape (hexagon)
-          this.graphics.drawPolygon([
-              shapeSize/2 * 0.866, shapeSize/2 * 0.5,
-              0, shapeSize/2,
-              -shapeSize/2 * 0.866, shapeSize/2 * 0.5,
-              -shapeSize/2 * 0.866, -shapeSize/2 * 0.5,
-              0, -shapeSize/2,
-              shapeSize/2 * 0.866, -shapeSize/2 * 0.5
-          ]);
-          break;
-      case 5:
-          // Draw an ellipse
-          const ellipseWidth = shapeSize;
-          const ellipseHeight = shapeSize;
-          this.graphics.drawEllipse(0, 0, ellipseWidth/2, ellipseHeight/2);
-          break;
-      case 6:
-          // Draw a star
-          const starSize = shapeSize/2;
-          this.drawStar(this.graphics, 0, 0, 5, starSize, starSize / 2);
-          break;
-    }
+    this.drawShape();
 
     this.graphics.endFill();
     this.graphics.position.set(x,y);
@@ -155,7 +109,98 @@ class Shape {
       }
     });
   }
+
+  protected drawShape() {}
 }
+
+class Circle extends Shape {
+  protected override drawShape() {
+    const shapeSize = 100;
+    const circleRadius = shapeSize / 2;
+    this.graphics.drawCircle(0, 0, circleRadius);
+  }
+}
+
+class Square extends Shape {
+  protected override drawShape() {
+    const shapeSize = 100;
+    this.graphics.drawRect(-shapeSize / 2, -shapeSize / 2, shapeSize, shapeSize);
+  }
+}
+
+class Triangle extends Shape {
+  protected override drawShape() {
+    const shapeSize = 100;
+    this.graphics.drawPolygon([-shapeSize / 2, shapeSize / 2, shapeSize / 2, shapeSize / 2, 0, -shapeSize / 2]);
+  }
+}
+
+class Pentagon extends Shape {
+  protected override drawShape() {
+    const shapeSize = 100;
+    this.graphics.drawPolygon([
+      0, -shapeSize / 2,
+      shapeSize / 2 * 0.951, -shapeSize / 2 * 0.309,
+      shapeSize / 2 * 0.588, shapeSize / 2 * 0.809,
+      -shapeSize / 2 * 0.588, shapeSize / 2 * 0.809,
+      -shapeSize / 2 * 0.951, -shapeSize / 2 * 0.309
+    ]);
+  }
+}
+
+class Hexagon extends Shape {
+  protected override drawShape() {
+    const shapeSize = 100;
+    this.graphics.drawPolygon([
+      shapeSize / 2 * 0.866, shapeSize / 2 * 0.5,
+      0, shapeSize / 2,
+      -shapeSize / 2 * 0.866, shapeSize / 2 * 0.5,
+      -shapeSize / 2 * 0.866, -shapeSize / 2 * 0.5,
+      0, -shapeSize / 2,
+      shapeSize / 2 * 0.866, -shapeSize / 2 * 0.5
+    ]);
+  }
+}
+
+class Ellipse extends Shape {
+  protected override drawShape() {
+    const shapeSize = 100;
+    this.graphics.drawEllipse(0, 0, shapeSize / 2, shapeSize / 2);
+  }
+}
+
+class Star extends Shape {
+  protected override drawShape() {
+    const shapeSize = 100;
+    const starSize = shapeSize / 2;
+    this.drawStar(this.graphics, 0, 0, 5, starSize, starSize / 2);
+  }
+}
+
+class RandomShape extends Shape {
+  protected override drawShape() {
+    const shapeSize = 100;
+    const graphics = this.graphics;
+    const numPoints = Math.floor(Math.random() * 10) + 3; // Random number of points between 3 and 12
+    const points: number[] = [];
+
+    // Generate random points within a circle
+    for (let i = 0; i < numPoints; i++) {
+      const angle = Math.random() * Math.PI * 2; // Random angle
+      const distance = Math.random() * shapeSize; // Random distance from center
+
+      // Calculate the coordinates of the point
+      const pointX = Math.cos(angle) * distance;
+      const pointY = Math.sin(angle) * distance;
+
+      points.push(pointX, pointY);
+    }
+
+    graphics.drawPolygon(points);
+  }
+}
+
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -265,21 +310,46 @@ export class AppComponent implements OnInit, OnDestroy {
     return;
   }
 
-  const shape = new Shape(this.game);
-  const shapeIndex = Math.floor(Math.random() * 7);
-  shape.draw(this.getRandomColor(), shapeIndex, x, y);
+  const shape = new RandomShape(this.game);
+
+  shape.draw(this.getRandomColor(), x, y);
   shape.animate(this.gravity);
 
   this.activeShapes.push(shape);
   }
 
   createRandomShape() {
-    const shape = new Shape(this.game);
+    let shape: Shape = new Shape(this.game);
     const shapeIndex = Math.floor(Math.random() * 7);
-    shape.draw(this.getRandomColor(), shapeIndex, Math.random() * (this.game.renderer.width - 100) + 50, -100);
-    shape.animate(this.gravity);
 
+    switch (shapeIndex) {
+      case 0:
+        shape = new Circle(this.game)
+        break;
+      case 1:
+        shape = new Square(this.game);
+        break;
+      case 2:
+        shape = new Triangle(this.game);
+        break;
+      case 3:
+        shape = new Pentagon(this.game);
+        break;
+      case 4:
+        shape = new Hexagon(this.game);
+        break;
+      case 5:
+        shape = new Ellipse(this.game);
+        break;
+      case 6:
+        shape = new Star(this.game);
+        break;
+    }
+    
+    shape.draw(this.getRandomColor(), Math.random() * (this.game.renderer.width - 100) + 50, -100);
+    shape.animate(this.gravity);
     this.activeShapes.push(shape);
+    console.log(shape)
   }
 }
 
